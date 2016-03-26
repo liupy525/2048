@@ -1,0 +1,428 @@
+@import "helpers";
+
+$field-width: 500px;
+$grid-spacing: 15px;
+$grid-row-cells: 4;
+$square-size: ($field-width - $grid-spacing * ($grid-row-cells + 1)) / $grid-row-cells;
+$square-border-radius: 3px;
+
+$mobile-threshold: $field-width + 20px;
+
+$text-color: #776E65;
+$bright-text-color: #f9f6f2;
+
+$square-color: #eee4da;
+$square-gold-color: #edc22e;
+$square-gold-glow-color: lighten($square-gold-color, 15%);
+
+$game-container-margin-top: 40px;
+$game-container-background: #bbada0;
+
+$transition-speed: 100ms;
+
+html, body {
+  background: #faf8ef;
+  color: $text-color;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 18px;
+}
+
+body {
+  margin: 80px 0;
+}
+
+.heading {
+  @include clearfix;
+}
+
+h1.title {
+  font-size: 80px;
+  font-weight: bold;
+  margin: 0;
+  display: block;
+  float: left;
+}
+
+@keyframes move-up {
+  0% {
+    top: 25px;
+    opacity: 1;
+  }
+
+  100% {
+    top: -50px;
+    opacity: 0;
+  }
+}
+
+.scores-container {
+  float: right;
+  text-align: right;
+}
+
+.score-container, .best-container {
+  $height: 25px;
+
+  position: relative;
+  display: inline-block;
+  background: $game-container-background;
+  padding: 15px 25px;
+  font-size: $height;
+  height: $height;
+  line-height: $height + 22px;
+  font-weight: bold;
+  border-radius: 3px;
+  color: white;
+  margin-top: 8px;
+  text-align: center;
+
+  &:after {
+    position: absolute;
+    width: 100%;
+    top: 10px;
+    left: 0;
+    text-transform: uppercase;
+    font-size: 13px;
+    line-height: 13px;
+    text-align: center;
+    color: $square-color;
+  }
+
+  .score-addition {
+    position: absolute;
+    right: 30px;
+    color: red;
+    font-size: $height;
+    line-height: $height;
+    font-weight: bold;
+    color: rgba($text-color, .9);
+    z-index: 100;
+    animation: move-up 600ms ease-in;
+    animation-fill-mode: both;
+  }
+}
+
+.score-container:after {
+  content: "Score";
+}
+
+.best-container:after {
+  content: "Best"
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 10px;
+  line-height: 1.65;
+}
+
+a {
+  color: $text-color;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.container {
+  width: $field-width;
+  margin: 0 auto;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+// Styles for buttons
+@mixin button {
+  display: inline-block;
+  background: darken($game-container-background, 20%);
+  border-radius: 3px;
+  padding: 0 20px;
+  text-decoration: none;
+  color: $bright-text-color;
+  height: 40px;
+  line-height: 42px;
+}
+
+// Game field mixin used to render CSS at different width
+@mixin game-field {
+  .game-container {
+    margin-top: $game-container-margin-top;
+    position: relative;
+    padding: $grid-spacing;
+
+    cursor: default;
+
+    background: $game-container-background;
+    border-radius: $square-border-radius * 2;
+    width: $field-width;
+    height: $field-width;
+    box-sizing: border-box;
+
+    .game-message {
+      display: none;
+
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba($square-color, .5);
+      z-index: 100;
+
+      text-align: center;
+
+      p {
+        font-size: 60px;
+        font-weight: bold;
+        height: 60px;
+        line-height: 60px;
+        margin-top: 222px;
+      }
+
+      .lower {
+        display: block;
+        margin-top: 59px;
+      }
+
+      a {
+        @include button;
+        margin-left: 9px;
+
+        &.keep-playing-button {
+          display: none;
+        }
+      }
+
+      animation: fade-in 800ms ease $transition-speed * 12;
+      animation-fill-mode: both;
+
+      &.game-won {
+        background: rgba($square-gold-color, .5);
+        color: $bright-text-color;
+
+    a.keep-playing-button {
+      display: inline-block;
+    }
+      }
+
+      &.game-won, &.game-over {
+        display: block;
+      }
+    }
+  }
+
+  .grid-container {
+    position: absolute;
+    z-index: 1;
+  }
+
+  .grid-row {
+    margin-bottom: $grid-spacing;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:after {
+      content: "";
+      display: block;
+      clear: both;
+    }
+  }
+
+  .grid-cell {
+    width: $square-size;
+    height: $square-size;
+    margin-right: $grid-spacing;
+    float: left;
+
+    border-radius: $square-border-radius;
+
+    background: rgba($square-color, .35);
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .square-container {
+    position: absolute;
+    z-index: 2;
+  }
+
+  .square {
+    &, .square-inner {
+      width: ceil($square-size);
+      height: ceil($square-size);
+      line-height: ceil($square-size);
+    }
+
+    // Build position classes
+    @for $x from 1 through $grid-row-cells {
+      @for $y from 1 through $grid-row-cells {
+        &.square-position-#{$x}-#{$y} {
+          $xPos: floor(($square-size + $grid-spacing) * ($x - 1));
+          $yPos: floor(($square-size + $grid-spacing) * ($y - 1));
+          transform: translate($xPos, $yPos);
+        }
+      }
+    }
+  }
+}
+
+// End of game-field mixin
+@include game-field;
+
+.square {
+  position: absolute; // Makes transforms relative to the top-left corner
+
+  .square-inner {
+    border-radius: $square-border-radius;
+
+    background: $square-color;
+    text-align: center;
+    font-weight: bold;
+    z-index: 10;
+
+    font-size: 55px;
+  }
+
+  // Movement transition
+  transition: $transition-speed ease-in-out;
+  transition-property: transform;
+
+  $base: 2;
+  $exponent: 1;
+  $limit: 11;
+
+  // Colors for all 11 states, false = no special color
+  $special-colors: false false, // 2
+                   false false, // 4
+                   #f78e48 true, // 8
+                   #fc5e2e true, // 16
+                   #ff3333 true, // 32
+                   #ff0000 true, // 64
+                   false true, // 128
+                   false true, // 256
+                   false true, // 512
+                   false true, // 1024
+                   false true; // 2048
+
+  // Build square colors
+  @while $exponent <= $limit {
+    $power: pow($base, $exponent);
+
+    &.square-#{$power} .square-inner {
+      // Calculate base background color
+      $gold-percent: ($exponent - 1) / ($limit - 1) * 100;
+      $mixed-background: mix($square-gold-color, $square-color, $gold-percent);
+
+      $nth-color: nth($special-colors, $exponent);
+
+      $special-background: nth($nth-color, 1);
+      $bright-color: nth($nth-color, 2);
+
+      @if $special-background {
+        $mixed-background: mix($special-background, $mixed-background, 55%);
+      }
+
+      @if $bright-color {
+        color: $bright-text-color;
+      }
+
+      // Set background
+      background: $mixed-background;
+
+      // Add glow
+      $glow-opacity: max($exponent - 4, 0) / ($limit - 4);
+
+      @if not $special-background {
+        box-shadow: 0 0 30px 10px rgba($square-gold-glow-color, $glow-opacity / 1.8),
+                    inset 0 0 0 1px rgba(white, $glow-opacity / 3);
+      }
+
+      // Adjust font size for bigger numbers
+      @if $power >= 100 and $power < 1000 {
+        font-size: 45px;
+
+        // Media queries placed here to avoid carrying over the rest of the logic
+      } @else if $power >= 1000 {
+        font-size: 35px;
+
+      }
+    }
+
+    $exponent: $exponent + 1;
+  }
+
+  // Super squares (above 2048)
+  &.square-super .square-inner {
+    color: $bright-text-color;
+    background: mix(#333, $square-gold-color, 95%);
+
+    font-size: 30px;
+
+  }
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.square-new .square-inner {
+  animation: appear 200ms ease $transition-speed;
+  animation-fill-mode: backwards;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.square-merged .square-inner {
+  z-index: 20;
+  animation: pop 200ms ease $transition-speed;
+  animation-fill-mode: backwards;
+}
+
+.above-game {
+  @include clearfix;
+}
+
+.game-intro {
+  float: left;
+  line-height: 42px;
+  margin-bottom: 0;
+}
+
+.restart-button, .rollback-button {
+  @include button;
+  display: block;
+  text-align: center;
+  float: right;
+  margin-left: 30px;
+}
