@@ -1,5 +1,7 @@
 'use strict'
 
+import html2canvas from '../lib/html2canvas'
+
 export default (function () {
     // 依赖及私有属性
     var events = {},
@@ -47,6 +49,7 @@ export default (function () {
             bindButtonPress('.restart-button', restart);
             bindButtonPress('.rollback-button', rollback);
             bindButtonPress('.keep-playing-button', keepPlaying);
+            bindButtonPress('.camera-button', takePhoto);
        },
 
         restart = function (event) {
@@ -57,6 +60,27 @@ export default (function () {
         rollback = function (event) {
             event.preventDefault();
             emit('rollback');
+        },
+
+        takePhoto = function (event) {
+            event.preventDefault();
+            html2canvas(document.getElementsByClassName('.container')[0])
+                .then(function (canvas) {
+
+                    var imgData = canvas.toDataURL('image/png');
+                    var type = 'png';
+                    var filename = 'image' + (new Date()).getTime() + '.' + type;
+                    var link = document.createElement('a');
+
+                    link.href = imgData;
+                    link.download = filename;
+
+                    var event = document.createEvent('MouseEvents');
+                    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                    link.dispatchEvent(event);
+
+            })
+
         },
 
         keepPlaying = function (event) {
