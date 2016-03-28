@@ -47,8 +47,8 @@ module.exports = (options) => {
         entryHtml.forEach((filePath) => {
             let filename = filePath.substring(filePath.lastIndexOf('\/') + 1, filePath.lastIndexOf('.'))
             let conf = {
-                template: 'html!' + filePath,
-                filename: filename + '.html'
+                template: 'html?attrs=img:src link:href!' + filePath,
+                filename: filename + '.html',
             }
 
             if(filename in entries) {
@@ -112,7 +112,7 @@ module.exports = (options) => {
         module: {
             loaders: [
                 {
-                    test: /\.(jpe?g|png|gif|svg)$/i,
+                    test: /\.(jpe?g|png|gif|svg|ico)$/i,
                     loaders: [
                         'url?limit=10000&name=img/[hash:8].[name].[ext]',
                     ]
@@ -123,7 +123,7 @@ module.exports = (options) => {
                 },
                 {test: /\.css$/, loader: cssLoader},
                 {test: /\.scss$/, loader: scssLoader},
-                {test: /\.js$/, exclude: /node_modules/, loader: 'babel?presets[]=es2015'}
+                {test: /\.js$/, exclude: /node_modules/, loader: 'babel?presets[]=es2015'},
             ]
         },
 
